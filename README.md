@@ -1,70 +1,76 @@
-# Getting Started with Create React App
+# Softener Price Comparison App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a Progressive Web App (PWA) for comparing softener prices. The app allows users to input softener brand names, volume (in milliliters), and price (in Thai Baht) to calculate the price per milliliter. Users can also clear all data or remove individual entries from the list.
 
-## Available Scripts
+## Features
+- Add softener brand name, volume, and price
+- Calculate and display the price per milliliter
+- Remove individual softeners from the list
+- Clear all softeners from the list
+- Mobile-friendly and fully responsive
+- Works offline (PWA)
 
-In the project directory, you can run:
+## Technologies Used
+- **React**
+- **Material-UI (MUI)** for UI components
+- **Vercel** for deployment
 
-### `npm start`
+## How to Use
+1. Visit the app at: [softener-app.vercel.app](https://softener-app.vercel.app)
+2. Input the softener details (brand, volume, and price).
+3. See the calculated price per milliliter.
+4. Use the "ลบข้อมูลทั้งหมด" button to clear all data, or the delete icon next to each softener to remove an individual entry.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Installation and Setup (Development)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. Clone the repository:
 
-### `npm test`
+   ```
+   git clone https://github.com/anelhaman/softenerApp.git
+   ```
+2. Navigate to the project directory:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+    ```
+    cd softener-comparison-app
+    ```
 
-### `npm run build`
+3. Install the dependencies:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+    ```
+    npm install
+    ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+4. Start the development server:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+    ```
+    npm start
+    ```
 
-### `npm run eject`
+5. Build the app for production:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+    ```
+    npm run build
+    ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Deployment
+The app is deployed on Vercel and can be accessed at `https://softener-app.vercel.app`
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### To deploy the app to Vercel:
 
-## Learn More
+- Push your repository to GitHub.
+- Link your GitHub repository to Vercel.
+- Vercel will automatically deploy your app after each push to the main branch.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## License
+This project is licensed under the MIT License.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
+### Key Sections:
+- **Introduction**: Explains the purpose of the app and its key features.
+- **Technologies Used**: Lists the technologies used in building the app.
+- **How to Use**: Instructions for end users on how to use the app.
+- **Installation and Setup**: Steps for developers to clone the repository and run the app locally.
+- **Deployment**: Mentions the live deployment on Vercel and how to deploy the app.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Feel free to modify this as needed for your project. Let me know if you need any additional information!
