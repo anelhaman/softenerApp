@@ -88,9 +88,12 @@ function App() {
       return;
     }
 
+    // Trim the brand name before saving
+    const trimmedName = name.trim();
+
     const newSoftener = {
       id: Date.now(),
-      name,
+      name: trimmedName,
       volume: parseFloat(rawVolume.replace(/\s+/g, '').replace(/,/g, '')),
       price: parseFloat(rawPrice.replace(/\s+/g, '').replace(/,/g, '')),
       image,
@@ -102,6 +105,11 @@ function App() {
       );
       setSofteners(updatedSofteners);
       setEditIndex(null);
+
+      // Show the snackbar message after editing and saving
+      setSnackbarMessage('อัพเดทข้อมูลเรียบร้อยแล้ว!');
+      setSnackbarOpen(true);
+
     } else {
       setSofteners([...softeners, newSoftener]);
       setSnackbarMessage('เพิ่มข้อมูลเรียบร้อยแล้ว!');
@@ -306,7 +314,7 @@ function App() {
 
             {/* Sort by Dropdown */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-              <FormControl fullWidth variant="outlined">
+              <FormControl fullWidth variant="outlined" disabled={editIndex !== null}>
                 <InputLabel id="sort-label">Sort by</InputLabel>
                 <Select
                   labelId="sort-label"
