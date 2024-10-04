@@ -1,12 +1,26 @@
 import React, { useState } from 'react';
-import { TextField, Button, Container, List, ListItem, ListItemText, Typography, Box, IconButton } from '@mui/material';
+import { TextField, Button, Container, List, ListItem, ListItemText, Typography, Box, IconButton, Dialog, DialogTitle, DialogContent } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 function App() {
   const [name, setName] = useState('');
   const [volume, setVolume] = useState('');
   const [price, setPrice] = useState('');
+  const [image, setImage] = useState(null);  // State to store the image as Base64
   const [softeners, setSofteners] = useState([]);
+  const [openImage, setOpenImage] = useState(null); // State to control image modal
+
+  // Handle file input for image (convert to Base64)
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImage(reader.result); // Store the Base64-encoded image and preview it
+    };
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Add a new softener
   const handleAddSoftener = () => {
@@ -15,11 +29,12 @@ function App() {
       return;
     }
 
-    const newSoftener = { name, volume: parseFloat(volume), price: parseFloat(price) };
+    const newSoftener = { name, volume: parseFloat(volume), price: parseFloat(price), image };  // Add image to softener
     setSofteners([...softeners, newSoftener]);
     setName('');
     setVolume('');
     setPrice('');
+    setImage(null);  // Clear image input after adding
   };
 
   // Clear all softeners with confirmation
@@ -57,6 +72,16 @@ function App() {
 
   // Get the cheapest softener's price per milliliter
   const cheapestPricePerMl = sortedSofteners.length > 0 ? calculatePricePerMl(sortedSofteners[0]) : null;
+
+  // Open modal with larger image
+  const handleImageClick = (image) => {
+    setOpenImage(image);
+  };
+
+  // Close modal
+  const handleCloseImage = () => {
+    setOpenImage(null);
+  };
 
   return (
     <Container maxWidth="sm">
@@ -104,6 +129,29 @@ function App() {
           inputMode="numeric"  // Specifically tells the browser to use numeric input
           sx={{ marginBottom: 2 }}
         />
+
+        {/* File Input for Image */}
+        <Button
+          variant="outlined"
+          component="label"
+          fullWidth
+          sx={{ marginBottom: 2 }}
+        >
+          เพิ่มรูปภาพ (เพิ่มได้เพียง 1 รูปภาพ)
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={handleImageChange}
+          />
+        </Button>
+
+        {/* Show preview of the image if selected */}
+        {image && (
+          <Box sx={{ textAlign: 'center', marginBottom: 2 }}>
+            <img src={image} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
+          </Box>
+        )}
 
         {/* Add Softener Button */}
         <Button
@@ -154,9 +202,28 @@ function App() {
                 primary={`${softener.name} - ${formatVolume(softener.volume)} - ${formatPrice(softener.price)}`}
                 secondary={`ราคาต่อมิลลิลิตร: ${formatPricePerMl(calculatePricePerMl(softener))}`}
               />
+              {/* Display image if uploaded */}
+              {softener.image && (
+                <Box sx={{ marginLeft: 2 }}>
+                  <img
+                    src={softener.image}
+                    alt="Softener"
+                    style={{ width: '50px', height: '50px', cursor: 'pointer' }}
+                    onClick={() => handleImageClick(softener.image)}  // Show larger image on click
+                  />
+                </Box>
+              )}
             </ListItem>
           ))}
         </List>
+
+        {/* Dialog to show larger image */}
+        <Dialog open={!!openImage} onClose={handleCloseImage}>
+          <DialogTitle>ภาพขนาดใหญ่</DialogTitle>
+          <DialogContent>
+            {openImage && <img src={openImage} alt="Large Preview" style={{ width: '100%', height: 'auto' }} />}
+          </DialogContent>
+        </Dialog>
       </Box>
     </Container>
   );
