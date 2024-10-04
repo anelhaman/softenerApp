@@ -10,6 +10,11 @@ function App() {
 
   // Add a new softener
   const handleAddSoftener = () => {
+    if (!name || !volume || !price) {
+      alert('กรุณากรอกข้อมูล ยี่ห้อ ปริมาณ และ ราคา ให้ครบถ้วน');
+      return;
+    }
+
     const newSoftener = { name, volume: parseFloat(volume), price: parseFloat(price) };
     setSofteners([...softeners, newSoftener]);
     setName('');
@@ -36,10 +41,31 @@ function App() {
     return softener.price / softener.volume;
   };
 
+  // Convert volume to liters if over 1000 ml
+  const formatVolume = (volume) => {
+    return volume >= 1000 ? `${volume} มิลลิลิตร (${(volume / 1000).toFixed(1)} ลิตร)` : `${volume} มิลลิลิตร`;
+  };
+
+  // Sort the softeners by price per milliliter in ascending order
+  const sortedSofteners = softeners.slice().sort((a, b) => calculatePricePerMl(a) - calculatePricePerMl(b));
+
+  // Get the cheapest softener's price per milliliter
+  const cheapestPricePerMl = sortedSofteners.length > 0 ? calculatePricePerMl(sortedSofteners[0]) : null;
+
   return (
     <Container maxWidth="sm">
       <Box sx={{ paddingTop: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
+        <Typography
+          variant="h4"
+          component="h1"
+          gutterBottom
+          sx={{
+            width: '100%',
+            textAlign: 'center',
+            fontSize: '2rem',
+            fontWeight: 'bold',
+          }}
+        >
           การเปรียบเทียบราคาน้ำยาปรับผ้านุ่ม
         </Typography>
 
@@ -77,6 +103,7 @@ function App() {
           color="primary"
           fullWidth
           onClick={handleAddSoftener}
+          disabled={!name || !volume || !price}  // Disable button if any field is empty
           sx={{ marginBottom: 4 }}
         >
           เพิ่มข้อมูล
@@ -99,12 +126,16 @@ function App() {
           รายการน้ำยาปรับผ้านุ่ม
         </Typography>
 
-        {/* List of Softeners */}
+        {/* List of Softeners, sorted and with color highlighting for the cheapest */}
         <List>
-          {softeners.map((softener, index) => (
+          {sortedSofteners.map((softener, index) => (
             <ListItem
               key={index}
-              sx={{ marginBottom: 1, backgroundColor: '#f9f9f9', borderRadius: 1 }}
+              sx={{
+                marginBottom: 1,
+                backgroundColor: calculatePricePerMl(softener) === cheapestPricePerMl ? '#d1f7d1' : '#f9f9f9', // Highlight cheapest softener
+                borderRadius: 1,
+              }}
               secondaryAction={
                 <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveSoftener(index)}>
                   <DeleteIcon />
@@ -112,7 +143,7 @@ function App() {
               }
             >
               <ListItemText
-                primary={`${softener.name} - ${softener.volume} มิลลิลิตร - ฿${softener.price.toFixed(2)}`}
+                primary={`${softener.name} - ${formatVolume(softener.volume)} - ฿${softener.price.toFixed(2)}`}
                 secondary={`ราคาต่อมิลลิลิตร: ฿${calculatePricePerMl(softener).toFixed(2)}`}
               />
             </ListItem>
