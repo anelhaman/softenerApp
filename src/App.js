@@ -33,26 +33,27 @@ function App() {
       alert('กรุณากรอกข้อมูล ยี่ห้อ ปริมาณ และ ราคา ให้ครบถ้วน');
       return;
     }
-
-    const newSoftener = { name, volume: parseFloat(volume), price: parseFloat(price), image };
-
+  
+    const newSoftener = { id: Date.now(), name, volume: parseFloat(volume), price: parseFloat(price), image };
+  
     if (editIndex !== null) {
-      // Update an existing softener
-      const updatedSofteners = [...softeners];
-      updatedSofteners[editIndex] = newSoftener;
+      // Find the softener to update by its unique id
+      const updatedSofteners = softeners.map((softener) =>
+        softener.id === editIndex ? newSoftener : softener
+      );
       setSofteners(updatedSofteners);
       setEditIndex(null); // Reset edit mode
     } else {
       // Add new softener
       setSofteners([...softeners, newSoftener]);
     }
-
+  
     // Clear input fields after saving
     setName('');
     setVolume('');
     setPrice('');
     setImage(null);
-  };
+  };  
 
   // Clear all softeners with confirmation
   const handleClearAll = () => {
@@ -90,14 +91,14 @@ function App() {
   };
 
   // Edit a specific softener
-  const handleEditSoftener = (index) => {
-    const softener = softeners[index];
+  const handleEditSoftener = (id) => {
+    const softener = softeners.find((softener) => softener.id === id);
     setName(softener.name);
     setVolume(softener.volume);
     setPrice(softener.price);
     setImage(softener.image);
-    setEditIndex(index); // Set edit mode to the current softener
-  };
+    setEditIndex(id); // Set edit mode to the softener's unique id
+  };  
 
   // Calculate price per milliliter
   const calculatePricePerMl = (softener) => {
@@ -271,9 +272,9 @@ function App() {
               </Box>
               {/* Right side: Edit and Delete buttons */}
               <Box>
-                <IconButton edge="end" aria-label="edit" onClick={() => handleEditSoftener(index)}>
-                  <EditIcon />
-                </IconButton>
+              <IconButton edge="end" aria-label="edit" onClick={() => handleEditSoftener(softener.id)}>
+                <EditIcon />
+              </IconButton>
                 <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveSoftener(index)}>
                   <DeleteIcon />
                 </IconButton>
