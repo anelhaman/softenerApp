@@ -1,5 +1,24 @@
 import React, { useState } from 'react';
-import { TextField, Button, Container, List, ListItem, ListItemText, Typography, Box, IconButton, Dialog, DialogTitle, DialogContent, Snackbar } from '@mui/material';
+import {
+  TextField,
+  Button,
+  Container,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+  Box,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Snackbar,
+  DialogActions,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
@@ -8,12 +27,15 @@ function App() {
   const [name, setName] = useState('');
   const [volume, setVolume] = useState('');
   const [price, setPrice] = useState('');
-  const [image, setImage] = useState(null);  // State to store the image as Base64
+  const [image, setImage] = useState(null); // State to store the image as Base64
   const [softeners, setSofteners] = useState([]);
-  const [removedSoftener, setRemovedSoftener] = useState(null);  // Temporarily store the removed softener
+  const [removedSoftener, setRemovedSoftener] = useState(null); // Temporarily store the removed softener
   const [editIndex, setEditIndex] = useState(null); // Track index of item being edited
   const [openImage, setOpenImage] = useState(null); // State to control image modal
   const [snackbarOpen, setSnackbarOpen] = useState(false); // Control for undo snackbar
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false); // Control for delete confirmation dialog
+  const [softenerToDelete, setSoftenerToDelete] = useState(null); // Store softener to be deleted
+  const [sortBy, setSortBy] = useState('pricePerMl'); // Default sort by price per milliliter
 
   // Handle file input for image (convert to Base64)
   const handleImageChange = (event) => {
@@ -33,9 +55,9 @@ function App() {
       alert('กรุณากรอกข้อมูล ยี่ห้อ ปริมาณ และ ราคา ให้ครบถ้วน');
       return;
     }
-  
+
     const newSoftener = { id: Date.now(), name, volume: parseFloat(volume), price: parseFloat(price), image };
-  
+
     if (editIndex !== null) {
       // Find the softener to update by its unique id
       const updatedSofteners = softeners.map((softener) =>
@@ -47,13 +69,13 @@ function App() {
       // Add new softener
       setSofteners([...softeners, newSoftener]);
     }
-  
+
     // Clear input fields after saving
     setName('');
     setVolume('');
     setPrice('');
     setImage(null);
-  };  
+  };
 
   // Clear all softeners with confirmation
   const handleClearAll = () => {
@@ -62,23 +84,28 @@ function App() {
     }
   };
 
-  // Remove a specific softener by index with confirmation
-  const handleRemoveSoftener = (indexToRemove) => {
-    if (window.confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?')) {
-      const softenerToRemove = softeners[indexToRemove];
-      setRemovedSoftener(softenerToRemove); // Store the removed softener for undo
-      setSofteners(softeners.filter((_, index) => index !== indexToRemove));
-      setSnackbarOpen(true);  // Open the snackbar for undo option
-    }
+  // Remove a specific softener by id with confirmation
+  const handleRemoveSoftener = (id) => {
+    const softener = softeners.find((s) => s.id === id);
+    setSoftenerToDelete(softener); // Store the softener to delete
+    setConfirmDeleteOpen(true); // Open the confirmation dialog
+  };
+
+  // Confirm deletion of softener
+  const handleConfirmDelete = () => {
+    setSofteners(softeners.filter((softener) => softener.id !== softenerToDelete.id));
+    setSnackbarOpen(true); // Open the snackbar for undo option
+    setSoftenerToDelete(null); // Clear the softener to delete
+    setConfirmDeleteOpen(false); // Close the confirmation dialog
   };
 
   // Undo the softener removal
   const handleUndoRemove = () => {
     if (removedSoftener) {
       setSofteners([...softeners, removedSoftener]);
-      setRemovedSoftener(null);  // Clear the removed softener after undo
+      setRemovedSoftener(null); // Clear the removed softener after undo
     }
-    setSnackbarOpen(false);  // Close the snackbar after undo
+    setSnackbarOpen(false); // Close the snackbar after undo
   };
 
   // Close the snackbar without undo
@@ -87,7 +114,7 @@ function App() {
       return;
     }
     setSnackbarOpen(false);
-    setRemovedSoftener(null);  // Clear removed softener if undo is not clicked
+    setRemovedSoftener(null); // Clear removed softener if undo is not clicked
   };
 
   // Edit a specific softener
@@ -98,7 +125,7 @@ function App() {
     setPrice(softener.price);
     setImage(softener.image);
     setEditIndex(id); // Set edit mode to the softener's unique id
-  };  
+  };
 
   // Calculate price per milliliter
   const calculatePricePerMl = (softener) => {
@@ -117,10 +144,27 @@ function App() {
   const formatPricePerMl = (pricePerMl) => `฿${pricePerMl.toFixed(2).toLocaleString()}`;
 
   // Sort the softeners by price per milliliter in ascending order
-  const sortedSofteners = softeners.slice().sort((a, b) => calculatePricePerMl(a) - calculatePricePerMl(b));
+  const sortedSofteners = softeners.slice().sort((a, b) => {
+    switch (sortBy) {
+      case 'name':
+        return a.name.localeCompare(b.name);
+      case 'volume':
+        return b.volume - a.volume; // Change this line for descending order
+      case 'price':
+        return a.price - b.price;
+      case 'pricePerMl':
+        return calculatePricePerMl(a) - calculatePricePerMl(b);
+      default:
+        return 0;
+    }
+  });
 
-  // Get the cheapest softener's price per milliliter
-  const cheapestPricePerMl = sortedSofteners.length > 0 ? calculatePricePerMl(sortedSofteners[0]) : null;
+  // Get the unique prices and sort them
+  const uniquePrices = [...new Set(sortedSofteners.map(softener => calculatePricePerMl(softener)))].sort((a, b) => a - b);
+  
+  // Get the cheapest and second-cheapest prices
+  const cheapestPrice = uniquePrices[0];
+  const secondCheapestPrice = uniquePrices[1];
 
   // Open modal with larger image
   const handleImageClick = (image) => {
@@ -159,13 +203,13 @@ function App() {
           sx={{ marginBottom: 2 }}
         />
         <TextField
-          label="ปริมาณ (มิลลิลิตร/ml)"
+          label="ปริมาณ (มิลลิลิตร)"
           variant="outlined"
           fullWidth
           value={volume}
           onChange={(e) => setVolume(e.target.value)}
-          type="tel"          // Ensures number pad on iPhone
-          inputMode="numeric"  // Specifically tells the browser to use numeric input
+          type="tel" // Ensures number pad on iPhone
+          inputMode="numeric" // Specifically tells the browser to use numeric input
           sx={{ marginBottom: 2 }}
         />
         <TextField
@@ -174,8 +218,8 @@ function App() {
           fullWidth
           value={price}
           onChange={(e) => setPrice(e.target.value)}
-          type="tel"          // Ensures number pad on iPhone
-          inputMode="numeric"  // Specifically tells the browser to use numeric input
+          type="tel" // Ensures number pad on iPhone
+          inputMode="numeric" // Specifically tells the browser to use numeric input
           sx={{ marginBottom: 2 }}
         />
 
@@ -211,10 +255,10 @@ function App() {
           color="primary"
           fullWidth
           onClick={handleSaveSoftener}
-          disabled={!name || !volume || !price}  // Disable button if any field is empty
+          disabled={!name || !volume || !price} // Disable button if any field is empty
           sx={{ marginBottom: 4 }}
         >
-          {editIndex !== null ? 'บันทึกการแก้ไข' : 'เพิ่มข้อมูล'}  {/* Change button text based on edit mode */}
+          {editIndex !== null ? 'บันทึกการแก้ไข' : 'เพิ่มข้อมูล'} {/* Change button text based on edit mode */}
         </Button>
 
         {/* Clear All Button */}
@@ -224,15 +268,39 @@ function App() {
             color="secondary"
             fullWidth
             onClick={handleClearAll}
+            disabled={editIndex !== null} // Disable button if in edit mode
             sx={{ marginBottom: 4 }}
           >
             ลบข้อมูลทั้งหมด
           </Button>
         )}
 
-        <Typography variant="h6" component="h2" gutterBottom>
-          รายการน้ำยาปรับผ้านุ่ม
-        </Typography>
+        {/* Show sorting dropdown only if there are softeners */}
+        {softeners.length > 0 && (
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+            <FormControl fullWidth variant="outlined">
+              <InputLabel id="sort-label">Sort by</InputLabel>
+              <Select
+                labelId="sort-label"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                label="Sort by"
+              >
+                <MenuItem value="name">ยี่ห้อ</MenuItem>
+                <MenuItem value="volume">ปริมาณ</MenuItem>
+                <MenuItem value="price">ราคา</MenuItem>
+                <MenuItem value="pricePerMl">ราคาต่อมิลลิตร</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        )}
+
+        {/* Show the title only if there are softeners */}
+        {softeners.length > 0 && (
+          <Typography variant="h6" component="h2" gutterBottom>
+            รายการน้ำยาปรับผ้านุ่ม
+          </Typography>
+        )}
 
         {/* List of Softeners, sorted and with color highlighting for the cheapest */}
         <List>
@@ -241,13 +309,13 @@ function App() {
               key={index}
               sx={{
                 marginBottom: 1,
-                backgroundColor: calculatePricePerMl(softener) === cheapestPricePerMl
+                backgroundColor: calculatePricePerMl(softener) === cheapestPrice
                   ? '#d1f7d1' // Green for the cheapest
-                  : index === 1
+                  : calculatePricePerMl(softener) === secondCheapestPrice
                   ? '#fff3cd' // Yellow for the second-cheapest
                   : '#f9f9f9', // Default background color
                 borderRadius: 1,
-                display: 'flex',  // Flexbox layout to prevent overlap
+                display: 'flex', // Flexbox layout to prevent overlap
                 justifyContent: 'space-between', // Space between text and actions
                 alignItems: 'center', // Align items vertically in the center
               }}
@@ -256,7 +324,7 @@ function App() {
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <ListItemText
                   primary={`${softener.name} - ${formatVolume(softener.volume)} - ${formatPrice(softener.price)}`}
-                  secondary={`ราคาต่อมิลลิลิตร: ${formatPricePerMl(calculatePricePerMl(softener))}`}
+                  secondary={`ราคาต่อมิลลิตร: ${formatPricePerMl(calculatePricePerMl(softener))}`}
                 />
                 {/* Display image if uploaded */}
                 {softener.image && (
@@ -265,23 +333,37 @@ function App() {
                       src={softener.image}
                       alt="Softener"
                       style={{ width: '50px', height: '50px', cursor: 'pointer' }}
-                      onClick={() => handleImageClick(softener.image)}  // Show larger image on click
+                      onClick={() => handleImageClick(softener.image)} // Show larger image on click
                     />
                   </Box>
                 )}
               </Box>
               {/* Right side: Edit and Delete buttons */}
               <Box>
-              <IconButton edge="end" aria-label="edit" onClick={() => handleEditSoftener(softener.id)}>
-                <EditIcon />
-              </IconButton>
-                <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveSoftener(index)}>
+                <IconButton edge="end" aria-label="edit" onClick={() => handleEditSoftener(softener.id)}>
+                  <EditIcon />
+                </IconButton>
+                <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveSoftener(softener.id)}>
                   <DeleteIcon />
                 </IconButton>
               </Box>
             </ListItem>
           ))}
         </List>
+
+        {/* Dialog for Delete Confirmation */}
+        <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
+          <DialogTitle>ยืนยันการลบ</DialogTitle>
+          <DialogContent>
+            <Typography>
+              คุณแน่ใจหรือไม่ว่าต้องการลบ {softenerToDelete?.name}?
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setConfirmDeleteOpen(false)} color="primary">ยกเลิก</Button>
+            <Button onClick={handleConfirmDelete} color="secondary">ลบ</Button>
+          </DialogActions>
+        </Dialog>
 
         {/* Dialog to show larger image */}
         <Dialog open={!!openImage} onClose={handleCloseImage}>
@@ -294,7 +376,7 @@ function App() {
         {/* Snackbar for undo option */}
         <Snackbar
           open={snackbarOpen}
-          autoHideDuration={6000}  // Duration to show the snackbar
+          autoHideDuration={6000} // Duration to show the snackbar
           onClose={handleSnackbarClose}
           message="ลบแล้ว! กด 'Undo' เพื่อยกเลิกการลบ"
           action={
