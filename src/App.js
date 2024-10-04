@@ -41,10 +41,16 @@ function App() {
     return softener.price / softener.volume;
   };
 
-  // Convert volume to liters if over 1000 ml
+  // Convert volume to liters if over 1000 ml and format with commas
   const formatVolume = (volume) => {
-    return volume >= 1000 ? `${volume} มิลลิลิตร (${(volume / 1000).toFixed(1)} ลิตร)` : `${volume} มิลลิลิตร`;
+    return volume >= 1000
+      ? `${volume.toLocaleString()} มิลลิลิตร (${(volume / 1000).toFixed(1).toLocaleString()} ลิตร)`
+      : `${volume.toLocaleString()} มิลลิลิตร`;
   };
+
+  // Format numbers with commas for price and price per milliliter
+  const formatPrice = (price) => `฿${price.toLocaleString()}`;
+  const formatPricePerMl = (pricePerMl) => `฿${pricePerMl.toFixed(2).toLocaleString()}`;
 
   // Sort the softeners by price per milliliter in ascending order
   const sortedSofteners = softeners.slice().sort((a, b) => calculatePricePerMl(a) - calculatePricePerMl(b));
@@ -84,7 +90,8 @@ function App() {
           fullWidth
           value={volume}
           onChange={(e) => setVolume(e.target.value)}
-          type="number"
+          type="tel"          // Ensures number pad on iPhone
+          inputMode="numeric"  // Specifically tells the browser to use numeric input
           sx={{ marginBottom: 2 }}
         />
         <TextField
@@ -93,7 +100,8 @@ function App() {
           fullWidth
           value={price}
           onChange={(e) => setPrice(e.target.value)}
-          type="number"
+          type="tel"          // Ensures number pad on iPhone
+          inputMode="numeric"  // Specifically tells the browser to use numeric input
           sx={{ marginBottom: 2 }}
         />
 
@@ -143,8 +151,8 @@ function App() {
               }
             >
               <ListItemText
-                primary={`${softener.name} - ${formatVolume(softener.volume)} - ฿${softener.price.toFixed(2)}`}
-                secondary={`ราคาต่อมิลลิลิตร: ฿${calculatePricePerMl(softener).toFixed(2)}`}
+                primary={`${softener.name} - ${formatVolume(softener.volume)} - ${formatPrice(softener.price)}`}
+                secondary={`ราคาต่อมิลลิลิตร: ${formatPricePerMl(calculatePricePerMl(softener))}`}
               />
             </ListItem>
           ))}
