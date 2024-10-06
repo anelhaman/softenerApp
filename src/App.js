@@ -188,6 +188,45 @@ function App() {
     }
   };
 
+  // Save compare list to clipboard as a table
+  const handleSaveToClipboard = () => {
+
+    // Ensure softeners are sorted based on the current sort option
+    const sortedSofteners = softeners.slice().sort((a, b) => {
+      switch (sortBy) { // assuming sortBy is the current sort criteria (e.g., 'name', 'volume', 'price')
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'volume':
+          return b.volume - a.volume; // Descending volume
+        case 'price':
+          return a.price - b.price; // Ascending price
+        case 'pricePerMl':
+          return calculatePricePerMl(a) - calculatePricePerMl(b);
+        default:
+          return 0;
+      }
+    });
+
+    const compareListData = sortedSofteners
+      .map((softener) => {
+        return `ยี่ห้อ: ${softener.name}\nปริมาณ: ${softener.volume} มิลลิลิตร\nราคา: ฿${softener.price}\n`;
+      })
+      .join('\n-------------------\n');
+  
+    const header = `รายการน้ำยาปรับผ้านุ่ม\n=====================\n\n`;
+    const content = header + compareListData;
+  
+    navigator.clipboard.writeText(content)
+      .then(() => {
+        setSnackbarMessage('คัดลอกรายการเรียบร้อย! พร้อมวางแล้ว');
+        setSnackbarOpen(true);
+      })
+      .catch(() => {
+        setSnackbarMessage('คัดลอกไม่สำเร็จ');
+        setSnackbarOpen(true);
+      });
+  };  
+
   // Calculate cheapest and second cheapest prices
   const uniquePrices = [...new Set(sortedSofteners.map((softener) => calculatePricePerMl(softener)))].sort(
     (a, b) => a - b
@@ -389,6 +428,18 @@ function App() {
             </ListItem>
           ))}
         </List>
+        {/* Conditionally Render Copy to Clipboard Text */}
+        {softeners.length > 0 && (
+          <Typography
+            variant="body1"
+            color="primary"
+            disabled={editIndex !== null}
+            onClick={handleSaveToClipboard}
+            sx={{ marginTop: 4, marginBottom: 4, textAlign: 'center', cursor: 'pointer', textDecoration: 'underline' }}
+          >
+            คัดลอกไปยังคลิปบอร์ด
+          </Typography>
+        )}
 
         <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
           <DialogTitle>ยืนยันการลบ</DialogTitle>
@@ -405,7 +456,6 @@ function App() {
           <DialogTitle>ภาพขนาดใหญ่</DialogTitle>
           <DialogContent>{openImage && <img src={openImage} alt="Large Preview" style={{ width: '100%' }} />}</DialogContent>
         </Dialog>
-
         <Snackbar
           open={snackbarOpen}
           autoHideDuration={3000}
