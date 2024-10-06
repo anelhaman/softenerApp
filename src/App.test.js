@@ -427,10 +427,7 @@ describe('Softener Price Check App', () => {
   });
 
   // Test Prevent Copy to Clipboard While Editing
-  test('does not allow copying to clipboard while editing', async () => {
-    // Mock clipboard functionality
-    const mockClipboard = jest.spyOn(navigator.clipboard, 'writeText').mockImplementation(() => Promise.resolve());
-  
+  test('does not render copy to clipboard button while editing', async () => {
     render(<App />);
   
     // Add a softener (Brand A)
@@ -439,19 +436,12 @@ describe('Softener Price Check App', () => {
     fireEvent.change(screen.getByLabelText(/ราคา \(บาท\)/i), { target: { value: '100' } });
     fireEvent.click(screen.getByRole('button', { name: /เพิ่มข้อมูล/i }));
   
-    // Enter edit mode by clicking the edit button on the first softener
+    // Enter edit mode by clicking the edit button
     const editButton = screen.getAllByLabelText('edit')[0];
     fireEvent.click(editButton);
   
-    // Try to click the "Copy to Clipboard" button or link
-    const copyButton = screen.getByText(/คัดลอกไปยังคลิปบอร์ด/i);
-    fireEvent.click(copyButton);
-  
-    // Assert that the clipboard action did not happen
-    expect(mockClipboard).not.toHaveBeenCalled();
-  
-    // Clean up the mock
-    mockClipboard.mockRestore();
+    // Ensure that the "Copy to Clipboard" button is not rendered during editing
+    expect(screen.queryByText(/คัดลอกไปยังคลิปบอร์ด/i)).not.toBeInTheDocument();
   });
   
 
