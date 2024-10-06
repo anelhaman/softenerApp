@@ -190,23 +190,27 @@ function App() {
 
   // Save compare list to clipboard as a table
   const handleSaveToClipboard = () => {
-
-    // Ensure softeners are sorted based on the current sort option
+    // Prevent copy to clipboard when editing
+    if (editIndex !== null) {
+      return;  // Early return if in edit mode
+    }
+  
+    // Proceed with clipboard copy if not in edit mode
     const sortedSofteners = softeners.slice().sort((a, b) => {
-      switch (sortBy) { // assuming sortBy is the current sort criteria (e.g., 'name', 'volume', 'price')
+      switch (sortBy) {
         case 'name':
           return a.name.localeCompare(b.name);
         case 'volume':
-          return b.volume - a.volume; // Descending volume
+          return b.volume - a.volume;
         case 'price':
-          return a.price - b.price; // Ascending price
+          return a.price - b.price;
         case 'pricePerMl':
           return calculatePricePerMl(a) - calculatePricePerMl(b);
         default:
           return 0;
       }
     });
-
+  
     const compareListData = sortedSofteners
       .map((softener) => {
         return `ยี่ห้อ: ${softener.name}\nปริมาณ: ${softener.volume} มิลลิลิตร\nราคา: ฿${softener.price}\n`;
@@ -225,7 +229,7 @@ function App() {
         setSnackbarMessage('คัดลอกไม่สำเร็จ');
         setSnackbarOpen(true);
       });
-  };  
+  };
 
   // Calculate cheapest and second cheapest prices
   const uniquePrices = [...new Set(sortedSofteners.map((softener) => calculatePricePerMl(softener)))].sort(
