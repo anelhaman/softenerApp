@@ -433,11 +433,10 @@ function App() {
           ))}
         </List>
         {/* Conditionally Render Copy to Clipboard Text */}
-        {editIndex !== null || items.length > 0 && (
+        {editIndex === null && items.length > 0 && (
           <Typography
             variant="body1"
             color="primary"
-            disabled={editIndex !== null}
             onClick={handleSaveToClipboard}
             sx={{ marginTop: 4, marginBottom: 4, textAlign: 'center', cursor: 'pointer', textDecoration: 'underline' }}
           >
