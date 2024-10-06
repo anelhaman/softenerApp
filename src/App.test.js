@@ -1,9 +1,8 @@
 import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react';
+import { waitFor, render, fireEvent, screen } from '@testing-library/react';
 import App from './App'; // Import the App component
 import '@testing-library/jest-dom'; // Import jest-dom matchers
 import { act } from 'react';  // Import act from react
-import { waitFor } from '@testing-library/react';
 
 describe('Softener Price Check App', () => {
   // Test initial render and input fields
@@ -175,6 +174,32 @@ describe('Softener Price Check App', () => {
     expect(sortedSofteners[1]).toHaveTextContent('ยี่ห้อ: Brand Aปริมาณ: 1,000 มิลลิลิตร (1.0 ลิตร)ราคา: ฿200ราคาต่อมิลลิลิตร: ฿0.20');  // Higher price
   });
 
+  // Test sorting softeners by name
+  test('sorts softeners by name in alphabetical order', async () => {
+    render(<App />);
+
+    // Add two softeners
+    fireEvent.change(screen.getByLabelText(/ยี่ห้อ/i), { target: { value: 'Zebra' } });
+    fireEvent.change(screen.getByLabelText(/ปริมาณ \(มิลลิลิตร\)/i), { target: { value: '500' } });
+    fireEvent.change(screen.getByLabelText(/ราคา \(บาท\)/i), { target: { value: '50' } });
+    fireEvent.click(screen.getByRole('button', { name: /เพิ่มข้อมูล/i }));
+
+    fireEvent.change(screen.getByLabelText(/ยี่ห้อ/i), { target: { value: 'Apple' } });
+    fireEvent.change(screen.getByLabelText(/ปริมาณ \(มิลลิลิตร\)/i), { target: { value: '1000' } });
+    fireEvent.change(screen.getByLabelText(/ราคา \(บาท\)/i), { target: { value: '100' } });
+    fireEvent.click(screen.getByRole('button', { name: /เพิ่มข้อมูล/i }));
+
+    // Select "Sort by Name"
+    fireEvent.mouseDown(screen.getByLabelText(/Sort by/i)); // Opens the dropdown
+    const listbox = screen.getByRole('listbox');
+    fireEvent.click(listbox.querySelector('[data-value="name"]')); // Select 'name'
+
+    // Check if the softeners are sorted alphabetically
+    const sortedSofteners = screen.getAllByRole('listitem');
+    expect(sortedSofteners[0]).toHaveTextContent('Apple');  // 'Apple' should be first
+    expect(sortedSofteners[1]).toHaveTextContent('Zebra');  // 'Zebra' should be second
+  });
+
 // Test copying the softeners list to clipboard
   test('copies the softeners list to clipboard', async () => {
     // Mock navigator.clipboard
@@ -332,4 +357,39 @@ describe('Softener Price Check App', () => {
     await waitFor(() => expect(screen.queryByAltText('Preview')).not.toBeInTheDocument());
   });
 
+  // Test preventing softener addition with incomplete data
+  test('undoes softener deletion using "Undo" button after confirmation', async () => {
+    render(<App />);
+  
+    // Add a softener (Brand A)
+    fireEvent.change(screen.getByLabelText(/ยี่ห้อ/i), { target: { value: 'Brand A' } });
+    fireEvent.change(screen.getByLabelText(/ปริมาณ \(มิลลิลิตร\)/i), { target: { value: '1000' } });
+    fireEvent.change(screen.getByLabelText(/ราคา \(บาท\)/i), { target: { value: '100' } });
+    fireEvent.click(screen.getByRole('button', { name: /เพิ่มข้อมูล/i }));
+  
+    // Use a flexible matcher to check if the softener was added
+    await waitFor(() => {
+      expect(screen.getByText((content) => content.includes('Brand A'))).toBeInTheDocument();
+    });
+  
+    // Click the delete button to open the confirmation dialog
+    const deleteButton = screen.getByLabelText('delete');
+    fireEvent.click(deleteButton);
+  
+    // Confirm the deletion in the dialog by clicking "ลบ"
+    fireEvent.click(screen.getByRole('button', { name: /ลบ/i }));
+  
+    // Wait for the snackbar to appear and locate the "Undo" button
+    const undoButton = await waitFor(() => screen.getByText(/Undo/i));
+  
+    // Click the "Undo" button
+    fireEvent.click(undoButton);
+  
+    // Ensure the softener is back in the list after undo
+    await waitFor(() => {
+      expect(screen.getByText((content) => content.includes('Brand A'))).toBeInTheDocument();
+    });
+  });
+  
+    
 });
