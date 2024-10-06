@@ -433,7 +433,7 @@ function App() {
           ))}
         </List>
         {/* Conditionally Render Copy to Clipboard Text */}
-        {softeners.length > 0 && (
+        {editIndex !== null || softeners.length > 0 && (
           <Typography
             variant="body1"
             color="primary"
