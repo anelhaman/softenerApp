@@ -1,12 +1,12 @@
-# Softener Price Comparison App
+# Item Price Comparison App
 
-This is a Progressive Web App (PWA) for comparing softener prices. The app allows users to input softener brand names, volume (in milliliters), and price (in Thai Baht) to calculate the price per milliliter. Users can also clear all data or remove individual entries from the list.
+This is a Progressive Web App (PWA) for comparing item prices. The app allows users to input item brand names, volume (in milliliters), and price (in Thai Baht) to calculate the price per milliliter. Users can also clear all data or remove individual entries from the list.
 
 ## Features
-- Add softener brand name, volume, and price
+- Add item brand name, volume, and price
 - Calculate and display the price per milliliter
-- Remove individual softeners from the list
-- Clear all softeners from the list
+- Remove individual items from the list
+- Clear all items from the list
 - Mobile-friendly and fully responsive
 - Works offline (PWA)
 
@@ -16,22 +16,22 @@ This is a Progressive Web App (PWA) for comparing softener prices. The app allow
 - **Vercel** for deployment
 
 ## How to Use
-1. Visit the app at: [softener-app.vercel.app](https://softener-app.vercel.app)
-2. Input the softener details (brand, volume, and price).
+1. Visit the app at: [item-app.vercel.app](https://item-app.vercel.app)
+2. Input the item details (brand, volume, and price).
 3. See the calculated price per milliliter.
-4. Use the "ลบข้อมูลทั้งหมด" button to clear all data, or the delete icon next to each softener to remove an individual entry.
+4. Use the "ลบข้อมูลทั้งหมด" button to clear all data, or the delete icon next to each item to remove an individual entry.
 
 ## Installation and Setup (Development)
 
 1. Clone the repository:
 
    ```
-   git clone https://github.com/anelhaman/softenerApp.git
+   git clone https://github.com/anelhaman/itemApp.git
    ```
 2. Navigate to the project directory:
 
     ```
-    cd softener-comparison-app
+    cd item-comparison-app
     ```
 
 3. Install the dependencies:
@@ -54,7 +54,7 @@ This is a Progressive Web App (PWA) for comparing softener prices. The app allow
 
 
 ## Deployment
-The app is deployed on Vercel and can be accessed at `https://softener-app.vercel.app`
+The app is deployed on Vercel and can be accessed at `https://item-app.vercel.app`
 
 ### To deploy the app to Vercel:
 
