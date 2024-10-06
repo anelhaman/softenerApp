@@ -213,11 +213,12 @@ function App() {
   
     const compareListData = sortedItems
       .map((item) => {
-        return `ยี่ห้อ: ${item.name}\nปริมาณ: ${item.volume} มิลลิลิตร\nราคา: ฿${item.price}\n`;
+        const pricePerMl = (item.price / item.volume).toFixed(2); // Calculate price per milliliter
+        return `ยี่ห้อ: ${item.name}\nปริมาณ: ${item.volume} มิลลิลิตร\nราคา: ฿${item.price}\nราคาต่อมิลลิลิตร: ฿${pricePerMl}`;
       })
       .join('\n-------------------\n');
   
-    const header = `รายการน้ำยาปรับผ้านุ่ม\n=====================\n\n`;
+    const header = `รายการเปรียบเทียบ\n=====================\n\n`;
     const content = header + compareListData;
   
     navigator.clipboard.writeText(content)

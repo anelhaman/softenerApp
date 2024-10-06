@@ -229,7 +229,7 @@ describe('Item Price Check App', () => {
     });
 
     // Ensure the correct text is copied to the clipboard
-    const expectedText = `รายการน้ำยาปรับผ้านุ่ม\n=====================\n\nยี่ห้อ: Brand A\nปริมาณ: 1000 มิลลิลิตร\nราคา: ฿100\n-------------------\nยี่ห้อ: Brand B\nปริมาณ: 500 มิลลิลิตร\nราคา: ฿50\n`;
+    const expectedText = `รายการเปรียบเทียบ\n=====================\n\nยี่ห้อ: Brand A\nปริมาณ: 1000 มิลลิลิตร\nราคา: ฿100\nราคาต่อมิลลิลิตร: ฿0.10\n-------------------\nยี่ห้อ: Brand B\nปริมาณ: 500 มิลลิลิตร\nราคา: ฿50\n ราคาต่อมิลลิลิตร: ฿0.10`;
 
     // Remove potential extra spaces or line breaks from both expected and actual values
     const cleanExpectedText = expectedText.replace(/\s+/g, ' ').trim();
