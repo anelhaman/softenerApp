@@ -443,6 +443,36 @@ describe('Item Price Check App', () => {
     // Ensure that the "Copy to Clipboard" button is not rendered during editing
     expect(screen.queryByText(/คัดลอกไปยังคลิปบอร์ด/i)).not.toBeInTheDocument();
   });
+
+  // Test Ensure Sorting Is Disabled While Editing
+  test('does not allow sorting by while editing', async () => {
+    render(<App />);
   
+    // Add two softeners with different price per ml
+    fireEvent.change(screen.getByLabelText(/ยี่ห้อ/i), { target: { value: 'Brand A' } });
+    fireEvent.change(screen.getByLabelText(/ปริมาณ \(มิลลิลิตร\)/i), { target: { value: '1000' } });
+    fireEvent.change(screen.getByLabelText(/ราคา \(บาท\)/i), { target: { value: '100' } });
+    fireEvent.click(screen.getByRole('button', { name: /เพิ่มข้อมูล/i }));
+  
+    fireEvent.change(screen.getByLabelText(/ยี่ห้อ/i), { target: { value: 'Brand B' } });
+    fireEvent.change(screen.getByLabelText(/ปริมาณ \(มิลลิลิตร\)/i), { target: { value: '500' } });
+    fireEvent.change(screen.getByLabelText(/ราคา \(บาท\)/i), { target: { value: '50' } });
+    fireEvent.click(screen.getByRole('button', { name: /เพิ่มข้อมูล/i }));
+  
+    // Enter edit mode by clicking the edit button for the first item (Brand A)
+    const editButton = screen.getAllByLabelText('edit')[0];
+    fireEvent.click(editButton);
+  
+    // Find the sort dropdown and check if it's disabled (using aria-disabled)
+    const sortDropdown = screen.getByLabelText(/Sort by/i);
+    expect(sortDropdown).toHaveAttribute('aria-disabled', 'true'); // Check the aria-disabled attribute
+  
+    // Try to open the dropdown, which should not be possible if it's disabled
+    fireEvent.mouseDown(sortDropdown);
+  
+    // Ensure that the listbox doesn't appear
+    const listbox = screen.queryByRole('listbox');
+    expect(listbox).toBeNull(); // It shouldn't open if it's disabled
+  });
 
 });
