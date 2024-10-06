@@ -28,21 +28,21 @@ function App() {
   const [rawVolume, setRawVolume] = useState('');
   const [rawPrice, setRawPrice] = useState('');
   const [image, setImage] = useState(null);
-  const [softeners, setSofteners] = useState([]);
-  const [removedSoftener, setRemovedSoftener] = useState(null);
+  const [items, setItems] = useState([]);
+  const [removedItem, setRemovedItem] = useState(null);
   const [editIndex, setEditIndex] = useState(null);
   const [openImage, setOpenImage] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [lastAction, setLastAction] = useState('');
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [softenerToDelete, setSoftenerToDelete] = useState(null);
+  const [itemToDelete, setItemToDelete] = useState(null);
   const [sortBy, setSortBy] = useState('pricePerMl');
 
   // Helper Functions
 
   // Calculate price per milliliter
-  const calculatePricePerMl = (softener) => softener.price / softener.volume;
+  const calculatePricePerMl = (item) => item.price / item.volume;
 
   // Format volume, converting to liters if over 1000 ml
   const formatVolume = (volume) =>
@@ -66,7 +66,7 @@ function App() {
     setOpenImage(null); // Close modal
   };
 
-  const sortedSofteners = softeners.slice().sort((a, b) => {
+  const sortedItems = items.slice().sort((a, b) => {
     switch (sortBy) {
       case 'name':
         return a.name.localeCompare(b.name);
@@ -81,8 +81,8 @@ function App() {
     }
   });
 
-  // Save or update softener
-  const handleSaveSoftener = () => {
+  // Save or update item
+  const handleSaveItem = () => {
     if (!name || !rawVolume || !rawPrice) {
       alert('กรุณากรอกข้อมูล ยี่ห้อ ปริมาณ และ ราคา ให้ครบถ้วน');
       return;
@@ -91,7 +91,7 @@ function App() {
     // Trim the brand name before saving
     const trimmedName = name.trim();
 
-    const newSoftener = {
+    const newItem = {
       id: Date.now(),
       name: trimmedName,
       volume: parseFloat(rawVolume.replace(/\s+/g, '').replace(/,/g, '')),
@@ -100,10 +100,10 @@ function App() {
     };
 
     if (editIndex !== null) {
-      const updatedSofteners = softeners.map((softener) =>
-        softener.id === editIndex ? newSoftener : softener
+      const updatedItems = items.map((item) =>
+        item.id === editIndex ? newItem : item
       );
-      setSofteners(updatedSofteners);
+      setItems(updatedItems);
       setEditIndex(null);
 
       // Show the snackbar message after editing and saving
@@ -111,7 +111,7 @@ function App() {
       setSnackbarOpen(true);
 
     } else {
-      setSofteners([...softeners, newSoftener]);
+      setItems([...items, newItem]);
       setSnackbarMessage('เพิ่มข้อมูลเรียบร้อยแล้ว!');
       setLastAction('add');
       setSnackbarOpen(true);
@@ -127,10 +127,10 @@ function App() {
     setImage(null);
   };
 
-  // Remove softener
-  const handleRemoveSoftener = (id) => {
-    const softener = softeners.find((s) => s.id === id);
-    setSoftenerToDelete(softener);
+  // Remove item
+  const handleRemoveItem = (id) => {
+    const item = items.find((s) => s.id === id);
+    setItemToDelete(item);
     setConfirmDeleteOpen(true);
   };
 
@@ -147,9 +147,9 @@ function App() {
   };
 
   const handleConfirmDelete = () => {
-    setRemovedSoftener(softenerToDelete);
-    setSofteners(softeners.filter((softener) => softener.id !== softenerToDelete.id));
-    setSoftenerToDelete(null);
+    setRemovedItem(itemToDelete);
+    setItems(items.filter((item) => item.id !== itemToDelete.id));
+    setItemToDelete(null);
     setConfirmDeleteOpen(false);
     setSnackbarMessage('ลบเรียบร้อยแล้ว!');
     setSnackbarOpen(true);
@@ -157,9 +157,9 @@ function App() {
   };
 
   const handleUndoRemove = () => {
-    if (removedSoftener) {
-      setSofteners([...softeners, removedSoftener]);
-      setRemovedSoftener(null);
+    if (removedItem) {
+      setItems([...items, removedItem]);
+      setRemovedItem(null);
     }
     setSnackbarOpen(false);
   };
@@ -169,22 +169,22 @@ function App() {
       return;
     }
     setSnackbarOpen(false);
-    setRemovedSoftener(null);
+    setRemovedItem(null);
   };
 
-  const handleEditSoftener = (id) => {
-    const softener = softeners.find((softener) => softener.id === id);
-    setName(softener.name);
-    setRawVolume(softener.volume.toString());
-    setRawPrice(softener.price.toString());
-    setImage(softener.image);
+  const handleEditItem = (id) => {
+    const item = items.find((item) => item.id === id);
+    setName(item.name);
+    setRawVolume(item.volume.toString());
+    setRawPrice(item.price.toString());
+    setImage(item.image);
     setEditIndex(id);
   };
 
-  // Clear all softeners with confirmation
+  // Clear all items with confirmation
   const handleClearAll = () => {
     if (window.confirm('คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลทั้งหมด?')) {
-      setSofteners([]); // Set the softeners array to an empty array
+      setItems([]); // Set the items array to an empty array
     }
   };
 
@@ -196,7 +196,7 @@ function App() {
     }
   
     // Proceed with clipboard copy if not in edit mode
-    const sortedSofteners = softeners.slice().sort((a, b) => {
+    const sortedItems = items.slice().sort((a, b) => {
       switch (sortBy) {
         case 'name':
           return a.name.localeCompare(b.name);
@@ -211,9 +211,9 @@ function App() {
       }
     });
   
-    const compareListData = sortedSofteners
-      .map((softener) => {
-        return `ยี่ห้อ: ${softener.name}\nปริมาณ: ${softener.volume} มิลลิลิตร\nราคา: ฿${softener.price}\n`;
+    const compareListData = sortedItems
+      .map((item) => {
+        return `ยี่ห้อ: ${item.name}\nปริมาณ: ${item.volume} มิลลิลิตร\nราคา: ฿${item.price}\n`;
       })
       .join('\n-------------------\n');
   
@@ -232,7 +232,7 @@ function App() {
   };
 
   // Calculate cheapest and second cheapest prices
-  const uniquePrices = [...new Set(sortedSofteners.map((softener) => calculatePricePerMl(softener)))].sort(
+  const uniquePrices = [...new Set(sortedItems.map((item) => calculatePricePerMl(item)))].sort(
     (a, b) => a - b
   );
   const cheapestPrice = uniquePrices[0];
@@ -242,7 +242,7 @@ function App() {
     <Container maxWidth="sm">
       <Box sx={{ paddingTop: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom sx={{ textAlign: 'center' }}>
-          Softener Price Check
+          Price Check
         </Typography>
 
         {/* Input Fields */}
@@ -313,7 +313,7 @@ function App() {
           variant="contained"
           color="primary"
           fullWidth
-          onClick={handleSaveSoftener}
+          onClick={handleSaveItem}
           disabled={!name || !rawVolume || !rawPrice}
           sx={{ marginBottom: 4 }}
         >
@@ -335,7 +335,7 @@ function App() {
           </Button>
         )}
 
-        {softeners.length > 0 && (
+        {items.length > 0 && (
           <Button
             variant="outlined"
             color="secondary"
@@ -348,11 +348,11 @@ function App() {
           </Button>
         )}
 
-        {softeners.length > 0 && (
+        {items.length > 0 && (
           <>
-            {/* Title: รายการน้ำยาปรับผ้านุ่ม */}
+            {/* Title: รายการเปรียบเทียบ */}
             <Typography variant="h6" component="h2" gutterBottom>
-              รายการน้ำยาปรับผ้านุ่ม
+              รายการเปรียบเทียบ
             </Typography>
 
             {/* Sort by Dropdown */}
@@ -376,15 +376,15 @@ function App() {
         )}
 
         <List>
-          {sortedSofteners.map((softener, index) => (
+          {sortedItems.map((item, index) => (
             <ListItem
               key={index}
               sx={{
                 marginBottom: 1,
                 backgroundColor:
-                  calculatePricePerMl(softener) === cheapestPrice
+                  calculatePricePerMl(item) === cheapestPrice
                     ? '#d1f7d1'
-                    : calculatePricePerMl(softener) === secondCheapestPrice
+                    : calculatePricePerMl(item) === secondCheapestPrice
                     ? '#fff3cd'
                     : '#f9f9f9',
                 borderRadius: 1,
@@ -394,21 +394,21 @@ function App() {
               }}
             >
               <Box sx={{ flexGrow: 1 }}>
-                <Typography variant="body1"><strong>ยี่ห้อ:</strong> {softener.name}</Typography>
-                <Typography variant="body1"><strong>ปริมาณ:</strong> {formatVolume(softener.volume)}</Typography>
-                <Typography variant="body1"><strong>ราคา:</strong> {formatPrice(softener.price)}</Typography>
+                <Typography variant="body1"><strong>ยี่ห้อ:</strong> {item.name}</Typography>
+                <Typography variant="body1"><strong>ปริมาณ:</strong> {formatVolume(item.volume)}</Typography>
+                <Typography variant="body1"><strong>ราคา:</strong> {formatPrice(item.price)}</Typography>
                 <Typography variant="body2" color="textSecondary">
-                  <strong>ราคาต่อมิลลิลิตร:</strong> {formatPricePerMl(calculatePricePerMl(softener))}
+                  <strong>ราคาต่อมิลลิลิตร:</strong> {formatPricePerMl(calculatePricePerMl(item))}
                 </Typography>
               </Box>
 
-              {softener.image && (
+              {item.image && (
                 <Box sx={{ marginLeft: 2 }}>
                   <img
-                    src={softener.image}
-                    alt="Softener"
+                    src={item.image}
+                    alt="Item"
                     style={{ width: '50px', height: '50px', cursor: 'pointer' }}
-                    onClick={() => handleImageClick(softener.image)}
+                    onClick={() => handleImageClick(item.image)}
                   />
                 </Box>
               )}
@@ -416,7 +416,7 @@ function App() {
               <IconButton
                 edge="end"
                 aria-label="edit"
-                onClick={() => handleEditSoftener(softener.id)}
+                onClick={() => handleEditItem(item.id)}
                 disabled={editIndex !== null}
               >
                 <EditIcon />
@@ -424,7 +424,7 @@ function App() {
               <IconButton
                 edge="end"
                 aria-label="delete"
-                onClick={() => handleRemoveSoftener(softener.id)}
+                onClick={() => handleRemoveItem(item.id)}
                 disabled={editIndex !== null}
               >
                 <DeleteIcon />
@@ -433,7 +433,7 @@ function App() {
           ))}
         </List>
         {/* Conditionally Render Copy to Clipboard Text */}
-        {editIndex !== null || softeners.length > 0 && (
+        {editIndex !== null || items.length > 0 && (
           <Typography
             variant="body1"
             color="primary"
@@ -448,7 +448,7 @@ function App() {
         <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
           <DialogTitle>ยืนยันการลบ</DialogTitle>
           <DialogContent>
-            <Typography>คุณแน่ใจหรือไม่ว่าต้องการลบ {softenerToDelete?.name}?</Typography>
+            <Typography>คุณแน่ใจหรือไม่ว่าต้องการลบ {itemToDelete?.name}?</Typography>
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setConfirmDeleteOpen(false)} color="primary">ยกเลิก</Button>
