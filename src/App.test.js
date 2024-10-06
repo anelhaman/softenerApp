@@ -391,5 +391,68 @@ describe('Softener Price Check App', () => {
     });
   });
   
-    
+  // Test clear all button is disabled in edit mode
+  test('does not allow clearing all softeners while editing', async () => {
+    render(<App />);
+  
+    // Add two softeners
+    fireEvent.change(screen.getByLabelText(/ยี่ห้อ/i), { target: { value: 'Brand A' } });
+    fireEvent.change(screen.getByLabelText(/ปริมาณ \(มิลลิลิตร\)/i), { target: { value: '1000' } });
+    fireEvent.change(screen.getByLabelText(/ราคา \(บาท\)/i), { target: { value: '100' } });
+    fireEvent.click(screen.getByRole('button', { name: /เพิ่มข้อมูล/i }));
+  
+    fireEvent.change(screen.getByLabelText(/ยี่ห้อ/i), { target: { value: 'Brand B' } });
+    fireEvent.change(screen.getByLabelText(/ปริมาณ \(มิลลิลิตร\)/i), { target: { value: '500' } });
+    fireEvent.change(screen.getByLabelText(/ราคา \(บาท\)/i), { target: { value: '50' } });
+    fireEvent.click(screen.getByRole('button', { name: /เพิ่มข้อมูล/i }));
+  
+    // Enter edit mode by clicking the edit button on the first softener (Brand A)
+    const editButton = screen.getAllByLabelText('edit')[0];
+    fireEvent.click(editButton);
+  
+    // Ensure "Clear All" button is either disabled or does not clear the softeners while editing
+    const clearAllButton = screen.getByRole('button', { name: /ลบข้อมูลทั้งหมด/i });
+  
+    // Check that the "Clear All" button is disabled while editing
+    expect(clearAllButton).toBeDisabled();
+  
+    // Try to click the "Clear All" button (even if disabled, the test should not proceed to clear softeners)
+    fireEvent.click(clearAllButton);
+  
+    // Verify that both softeners still exist using a flexible text matcher
+    await waitFor(() => {
+      expect(screen.getByText((content) => content.includes('Brand A'))).toBeInTheDocument();
+      expect(screen.getByText((content) => content.includes('Brand B'))).toBeInTheDocument();
+    });
+  });
+
+  // Test Prevent Copy to Clipboard While Editing
+  test('does not allow copying to clipboard while editing', async () => {
+    // Mock clipboard functionality
+    const mockClipboard = jest.spyOn(navigator.clipboard, 'writeText').mockImplementation(() => Promise.resolve());
+  
+    render(<App />);
+  
+    // Add a softener (Brand A)
+    fireEvent.change(screen.getByLabelText(/ยี่ห้อ/i), { target: { value: 'Brand A' } });
+    fireEvent.change(screen.getByLabelText(/ปริมาณ \(มิลลิลิตร\)/i), { target: { value: '1000' } });
+    fireEvent.change(screen.getByLabelText(/ราคา \(บาท\)/i), { target: { value: '100' } });
+    fireEvent.click(screen.getByRole('button', { name: /เพิ่มข้อมูล/i }));
+  
+    // Enter edit mode by clicking the edit button on the first softener
+    const editButton = screen.getAllByLabelText('edit')[0];
+    fireEvent.click(editButton);
+  
+    // Try to click the "Copy to Clipboard" button or link
+    const copyButton = screen.getByText(/คัดลอกไปยังคลิปบอร์ด/i);
+    fireEvent.click(copyButton);
+  
+    // Assert that the clipboard action did not happen
+    expect(mockClipboard).not.toHaveBeenCalled();
+  
+    // Clean up the mock
+    mockClipboard.mockRestore();
+  });
+  
+
 });
