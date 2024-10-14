@@ -16,7 +16,7 @@ This is a Progressive Web App (PWA) for comparing item prices. The app allows us
 - **Vercel** for deployment
 
 ## How to Use
-1. Visit the app at: [item-app.vercel.app](https://item-app.vercel.app)
+1. Visit the app at: https://softener-app.vercel.app/
 2. Input the item details (brand, volume, and price).
 3. See the calculated price per milliliter.
 4. Use the "ลบข้อมูลทั้งหมด" button to clear all data, or the delete icon next to each item to remove an individual entry.
