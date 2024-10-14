@@ -22,6 +22,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import CameraAltIcon from '@mui/icons-material/CameraAlt'; // Import the camera icon
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
 function App() {
   const [name, setName] = useState('');
@@ -58,6 +59,9 @@ function App() {
 
   // Handle image click to show a larger preview
   const handleImageClick = (image) => {
+    if (editIndex === null) { // Only allow the image click if not in edit mode
+      setOpenImage(image); // Store the image for modal display
+    }
     setOpenImage(image); // Store the image for modal display
   };
 
@@ -384,16 +388,39 @@ function App() {
                 marginBottom: 1,
                 backgroundColor:
                   calculatePricePerMl(item) === cheapestPrice
-                    ? '#d1f7d1'
+                    ? '#ffefd5'
                     : calculatePricePerMl(item) === secondCheapestPrice
-                    ? '#fff3cd'
+                    ? '#e0f7fa'
                     : '#f9f9f9',
                 borderRadius: 1,
                 display: 'flex',
-                justifyContent: 'space-between',
+                justifyContent: 'flex-start', // Align items to the left
                 alignItems: 'center',
+                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)', // Add shadow to each card
+                padding: '10px', // Add padding to the card for better spacing
               }}
             >
+              {/* Ranking Icons Based on Price */}
+              {calculatePricePerMl(item) === cheapestPrice && (
+                <EmojiEventsIcon
+                  style={{
+                    color: 'gold',
+                    fontSize: '36px',
+                    marginRight: '16px',
+                  }}
+                />
+              )}
+              {calculatePricePerMl(item) === secondCheapestPrice && (
+                <EmojiEventsIcon
+                  style={{
+                    color: 'silver',
+                    fontSize: '36px',
+                    marginRight: '16px',
+                  }}
+                />
+              )}
+
+              {/* Item Details */}
               <Box sx={{ flexGrow: 1 }}>
                 <Typography variant="body1"><strong>ยี่ห้อ:</strong> {item.name}</Typography>
                 <Typography variant="body1"><strong>ปริมาณ:</strong> {formatVolume(item.volume)}</Typography>
